@@ -1,22 +1,22 @@
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-public class Board implements GameState<Board>{
+public class Board implements GameState<Board> {
     private final static int nRow = 3;
     private final static int nCol = 6;
     final byte[][] board;
     private final byte player;
-    public Board(byte[][] board,byte newPlayer) {
+
+    public Board(byte[][] board, byte newPlayer) {
         this.board = new byte[nRow][];
         for (int i = 0; i < nRow; i++)
             this.board[i] = Arrays.copyOf(board[i], nCol);
-        player=newPlayer;
+        player = newPlayer;
     }
 
-    public Board(byte[][] board){
+    public Board(byte[][] board) {
         this(board, (byte) 1);
     }
 
@@ -25,57 +25,57 @@ public class Board implements GameState<Board>{
      * dest=-1?left,0?front,1?right
      */
     public Board(Board src, int srcR, int srcC, byte dest) {
-        this(src.board, (byte)-src.player);
+        this(src.board, (byte) -src.player);
         if (board[srcR][srcC] == 0)
             throw new RuntimeException();
         board[srcR][srcC] = 0;
         board[srcR - src.player][srcC + dest] = src.player;
     }
 
-    public byte terminalStage(){
-        for(byte b: board[0])
-            if(b>0)
+    public byte terminalStage() {
+        for (byte b : board[0])
+            if (b > 0)
                 return 1;
-        for(int i=1;i<nRow;i++)
-            for(byte b: board[i])
-                if(b>0)
+        for (int i = 1; i < nRow; i++)
+            for (byte b : board[i])
+                if (b > 0)
                     return 0;
         return -1;
     }
 
     @Override
     public double eval() {
-        if(player>0)
-            for(byte b: board[1])
-                if(b>0)
+        if (player > 0)
+            for (byte b : board[1])
+                if (b > 0)
                     return 1;
-        final byte terminal=terminalStage();
-        return terminal==0?0:terminal*Double.POSITIVE_INFINITY;
+        final byte terminal = terminalStage();
+        return terminal == 0 ? 0 : terminal * Double.POSITIVE_INFINITY;
     }
 
 
     @Override
     public Stream<Board> nextStates() {
-        final Stream<Board> ans= IntStream.range(0,nRow*nCol).mapToObj(i->{
-            final int srcC=i%nCol;
-            final int srcR=i/nCol;
-            final int nextRow=srcR-player;
-            if(!(board[srcR][srcC]==player)||nextRow<0||nextRow>=nRow)
+        final Stream<Board> ans = IntStream.range(0, nRow * nCol).mapToObj(i -> {
+            final int srcC = i % nCol;
+            final int srcR = i / nCol;
+            final int nextRow = srcR - player;
+            if (!(board[srcR][srcC] == player) || nextRow < 0 || nextRow >= nRow)
                 return null;
-            final Board leftFront=srcC>0&&board[nextRow][srcC-1]!=player?new Board(this,srcR,srcC, (byte) -1):null;
-            final Board midFront=board[nextRow][srcC]==0?new Board(this,srcR,srcC, (byte) 0):null;
-            final Board rightFront=srcC<nCol-1&&board[nextRow][srcC+1]!=player?new Board(this,srcR,srcC, (byte) 1):null;
-            return Stream.of(leftFront,midFront,rightFront).filter(Objects::nonNull);
-        }).flatMap(s->s);
-        return player<0?Stream.concat(ans, Stream.of(new Board(this.board, (byte) 1))):ans;
+            final Board leftFront = srcC > 0 && board[nextRow][srcC - 1] != player ? new Board(this, srcR, srcC, (byte) -1) : null;
+            final Board midFront = board[nextRow][srcC] == 0 ? new Board(this, srcR, srcC, (byte) 0) : null;
+            final Board rightFront = srcC < nCol - 1 && board[nextRow][srcC + 1] != player ? new Board(this, srcR, srcC, (byte) 1) : null;
+            return Stream.of(leftFront, midFront, rightFront).filter(Objects::nonNull);
+        }).flatMap(s -> s);
+        return player < 0 ? Stream.concat(ans, Stream.of(new Board(this.board, (byte) 1))) : ans;
     }
 
     @Override
-    public String toString(){
-        final StringBuilder ans=new StringBuilder();
-        for(byte[] row:board){
+    public String toString() {
+        final StringBuilder ans = new StringBuilder();
+        for (byte[] row : board) {
             ans.append('[');
-            for(byte b:row)
+            for (byte b : row)
                 ans.append('\t').append(b);
             ans.append("\t]\n");
         }

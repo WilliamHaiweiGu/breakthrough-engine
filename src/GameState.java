@@ -1,6 +1,7 @@
 import java.util.stream.Stream;
 
 public interface GameState<E> {
-    public double eval();
-    public Stream<E> nextStates();
+    double eval();
+
+    Stream<E> nextStates();
 }
