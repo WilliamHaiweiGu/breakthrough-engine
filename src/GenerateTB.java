@@ -19,18 +19,43 @@ public class GenerateTB {
                 parse6Digit(n >> 6, (byte) -1),
                 parse6Digit(n, (byte) 1),
         });
-        return AlphaBetaPrune.search(b);
+        //return AlphaBetaPrune.search(b);
+
+        Board best=AlphaBetaPrune.search(b);
+        return best==null?-1:best.move;
     }
 
     public static void main(String[] args) {
         long t = System.currentTimeMillis();
+
         final int len = 1 << 18;
         final int[] arr = new int[len];
         IntStream.range(0, len).parallel().forEach(i -> arr[i] = compute(i));
-        String s = "tb=" + Arrays.toString(arr).replace(" ", "");
+
+
+        StringBuilder out=new StringBuilder();
+        int count=0;
+        int cur=Integer.MIN_VALUE;
+        for(int num:arr) {
+            if (cur == num)
+                count++;
+            else{
+                if(cur>Integer.MIN_VALUE){
+                    out.append((char)(64+cur));
+                    if(count>1)
+                        out.append(count);
+                }
+                cur=num;
+                count=1;
+            }
+        }
+        out.append((char)(64+cur));
+        if(count>1)
+            out.append(count);
+
+        String s=Arrays.toString(arr).replace(" ","");
         System.out.println(s);
-        TextFile tx = new TextFile("C:\\Users\\willi\\Downloads\\mp\\tb.txt");
-        tx.save(s);
+        new TextFile("C:\\Users\\willi\\Downloads\\mp\\tb.txt").save(s);
         System.out.println((System.currentTimeMillis() - t) / 1000.0 + "s");
     }
 }

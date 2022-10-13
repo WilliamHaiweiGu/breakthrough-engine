@@ -1,5 +1,8 @@
 import java.util.Iterator;
 
+/**
+ * AlphaBeta prune algorithm that looks for best depth solutions
+ * */
 public class AlphaBetaPrune<E extends GameState<E>> {
     private final E startState;
 
@@ -7,14 +10,17 @@ public class AlphaBetaPrune<E extends GameState<E>> {
         this.startState = startState;
     }
 
-    public static <T extends GameState<T>> int search(T state) {
+    /**
+     * @return state after best move if forced win. null otherwise.
+     * */
+    public static <T extends GameState<T>> T search(T state) {
         final Node<T> n = new AlphaBetaPrune<>(state).abSearch();
-
+        /*
         System.out.println((n.utility.eval > 0 ? "Win" : "Lose") + " in " + n.utility.depth);
         for (Node<T> node = n; node != null; node = node.bestMove)
-            System.out.println(node);
+            System.out.println(node);*/
 
-        return n.utility.eval > 0 ? n.utility.depth : -n.utility.depth;
+        return n.utility.eval <= 0 || n.bestMove==null?null:n.bestMove.state;//n.utility.eval > 0 ? n.utility.depth : -n.utility.depth;
     }
 
     public static void main(String[] args) {
