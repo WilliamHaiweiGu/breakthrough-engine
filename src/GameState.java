@@ -2,7 +2,7 @@ import java.util.stream.Stream;
 
 public interface GameState<E> {
     /**
-     * Return +-infinity if and only if game is won/lost state
+     * NEVER Return +-infinity. Reserved for ABT to work correctly.
      * */
     int eval();
 
@@ -12,4 +12,9 @@ public interface GameState<E> {
      * Lazily generate all game states after valid moves
      * */
     Stream<E> nextStates();
+
+    /**
+     * @return 1 for max player, -1 for min player.
+     * */
+    byte player();
 }
