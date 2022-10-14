@@ -18,9 +18,9 @@ public class AlphaBetaPrune<E extends GameState<E>> {
     public static <T extends GameState<T>> T search(T state,int maxDepth) {
         final Node<T> n = new AlphaBetaPrune<>(state,maxDepth).abSearch();
 
-
+        /*
         for (Node<T> node = n; node != null; node = node.bestRes)
-            System.out.println(node);
+            System.out.println(node);*/
 
         return n==null||n.bestRes==null?null:n.bestRes.state;
     }

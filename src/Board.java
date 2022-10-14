@@ -140,11 +140,11 @@ public class Board implements GameState<Board> {
         return player;
     }
 
-    private int id=-1;
+    private long id=-1;
     @Override
-    public int id() {
+    public long id() {
         if(id<0) {
-            int ans=0;
+            long ans=0;
             for (int i = 0; i < nRow; i++)
                 for (int j = 0; j < nCol; j++)
                     ans=ans*3+board[i][j]+1;

@@ -23,12 +23,12 @@ public class Main {
 
     public static void depthLimitedSearch(int d){
         Board b=new Board(new byte[][]{
-                {-1, 0, -1, -1, -1, 0},
-                {-1, 0, -1, 0, 0, -1},
-                {1, -1, 1, 0, 0, 0},
-                {0, 0, 1, 0, 1, 1},
+                {-1, -1, -1, -1, -1, -1},
+                {-1, -1, -1, -1, -1, -1},
                 {0, 0, 0, 0, 0, 0},
                 {0, 0, 0, 0, 0, 0},
+                {1, 1, 1, 1, 1, 1},
+                {1, 1, 1, 1, 1, 1},
         }, (byte) 1,-1);
         final long t = System.currentTimeMillis();
         int ans=b.findBestMove(d);
@@ -36,7 +36,8 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        depthLimitedSearch(Integer.MAX_VALUE);
+        for(int i=1;i<=10;i++)
+            depthLimitedSearch(i);
     }
 }
 /*

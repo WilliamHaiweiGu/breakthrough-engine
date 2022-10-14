@@ -7,10 +7,10 @@ public class LimitedSizeDict<V> {
     private static class Node<V>{
         private final V val;
         private final int effDepth;
-        private final int id;
+        private final long id;
         private Node<V> prev=null;
         private Node<V> next=null;
-        private Node(V val,int effDepth,int id) {
+        private Node(V val,int effDepth,long id) {
             this.val = val;
             this.effDepth=effDepth;
             this.id=id;
@@ -23,7 +23,7 @@ public class LimitedSizeDict<V> {
 
     private final int maxSize;
     private int size;
-    private final HashMap<Integer,Node<V>> dict;
+    private final HashMap<Long,Node<V>> dict;
 
     //Doubly linked list: LIFO
     private final Node<V> head;
@@ -41,7 +41,7 @@ public class LimitedSizeDict<V> {
     /**
      * @return Integer.MIN_VALUE if not found or not deep enough
      * */
-    public V queryWithMinDepth(int boardID,int minDepth){
+    public V queryWithMinDepth(long boardID,int minDepth){
         final Node<V> n=dict.get(boardID);
         if(n==null)
             return null;
@@ -52,7 +52,7 @@ public class LimitedSizeDict<V> {
         connect(head,n);
         return n.effDepth<minDepth?null:n.val;
     }
-    public void put(int boardID,V val,int minDepth){
+    public void put(long boardID,V val,int minDepth){
         if(size>=maxSize) {
             //remove tail
             final Node<V> t = tail.prev;

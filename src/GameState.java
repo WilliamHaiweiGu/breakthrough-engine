@@ -18,5 +18,5 @@ public interface GameState<E> {
      * */
     byte player();
 
-    int id();
+    long id();
 }
