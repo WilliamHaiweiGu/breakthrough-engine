@@ -22,11 +22,12 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        AlphaBetaPrune.search(new Board(new byte[][]{
+        Board b=new Board(new byte[][]{
                 {-1, -1, -1, -1, -1, 0},
                 {-1, -1, -1, -1, -1, -1},
                 {1, 1, 1, 1, 1, 1}
-        }));
+        },(byte) 1,-1);
+        //AlphaBetaPrune.search((b),5);
 
     }
 }

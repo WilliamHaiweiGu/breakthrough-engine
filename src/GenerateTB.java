@@ -18,10 +18,10 @@ public class GenerateTB {
                 parse6Digit(n >> 12, (byte) -1),
                 parse6Digit(n >> 6, (byte) -1),
                 parse6Digit(n, (byte) 1),
-        });
+        }, (byte) 1,-1);
         //return AlphaBetaPrune.search(b);
 
-        Board best=AlphaBetaPrune.search(b);
+        Board best=AlphaBetaPrune.search(b,5);
         return best==null?-1:best.move;
     }
 
