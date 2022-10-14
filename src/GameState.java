@@ -17,4 +17,6 @@ public interface GameState<E> {
      * @return 1 for max player, -1 for min player.
      * */
     byte player();
+
+    int id();
 }

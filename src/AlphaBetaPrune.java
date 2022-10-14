@@ -1,5 +1,3 @@
-import jdk.jshell.execution.Util;
-
 import java.util.Iterator;
 
 /**
@@ -8,9 +6,11 @@ import java.util.Iterator;
 public class AlphaBetaPrune<E extends GameState<E>> {
     private final E startState;
     private final int maxDepth;
+    private final LimitedSizeDict<Node<E>> dict;
     private AlphaBetaPrune(E startState,int maxDepth) {
         this.startState = startState;
         this.maxDepth=maxDepth;
+        dict=new LimitedSizeDict<>(Integer.MAX_VALUE);
     }
 
     /**
@@ -34,6 +34,10 @@ public class AlphaBetaPrune<E extends GameState<E>> {
     private Node<E> maxSearch(E state, Utility a, Utility b, int curDepth) {
         if (curDepth>=maxDepth|| state.stopTreeSearch())
             return new Node<>(state, null, new Utility(state.eval(), curDepth));
+        final int effDepth=maxDepth-curDepth;
+        final Node<E> dictRes=dict.queryWithMinDepth(state.id(),effDepth);
+        if(dictRes!=null)
+            return dictRes;
         Utility utility = Utility.MIN;
         Node<E> bestMove = null;
         curDepth++;
@@ -49,12 +53,19 @@ public class AlphaBetaPrune<E extends GameState<E>> {
             if (utility.compareTo(b) >= 0)
                 break;
         }
-        return new Node<>(state, bestMove, utility);
+
+        Node<E> ans=new Node<>(state, bestMove, utility);
+        dict.put(state.id(), ans,effDepth);
+        return ans;
     }
 
     private Node<E> minSearch(E state, Utility a, Utility b, int curDepth) {
         if (curDepth>=maxDepth|| state.stopTreeSearch())
             return new Node<>(state, null, new Utility(state.eval(), curDepth));
+        final int effDepth=maxDepth-curDepth;
+        final Node<E> dictRes=dict.queryWithMinDepth(state.id(),effDepth);
+        if(dictRes!=null)
+            return dictRes;
         Utility utility = Utility.MAX;
         Node<E> bestMove = null;
         curDepth++;
@@ -74,7 +85,9 @@ public class AlphaBetaPrune<E extends GameState<E>> {
             if (utility.compareTo(a) <= 0)
                 break;
         }
-        return new Node<>(state, bestMove, utility);
+        Node<E> ans=new Node<>(state, bestMove, utility);
+        dict.put(state.id(), ans,effDepth);
+        return ans;
     }
 
 

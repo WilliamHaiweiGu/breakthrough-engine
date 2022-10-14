@@ -128,6 +128,20 @@ public class Board implements GameState<Board> {
         return player;
     }
 
+    private int id=-1;
+    @Override
+    public int id() {
+        if(id<0) {
+            int ans=0;
+            for (int i = 0; i < nRow; i++)
+                for (int j = 0; j < nCol; j++)
+                    ans=ans*3+board[i][j]+1;
+            ans<<=1;
+            id=player>0?ans|1:ans;
+        }
+        return id;
+    }
+
     private byte computeEndStage() {
         if(idxOf(board[0], (byte) 1)>=0)
             return 1;
