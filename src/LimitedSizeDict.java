@@ -6,7 +6,7 @@ import java.util.*;
 public class LimitedSizeDict<V> {
     private static class Node<V>{
         private final V val;
-        private int effDepth;
+        private final int effDepth;
         private final int id;
         private Node<V> prev=null;
         private Node<V> next=null;

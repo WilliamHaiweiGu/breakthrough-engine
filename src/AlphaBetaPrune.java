@@ -6,11 +6,10 @@ import java.util.Iterator;
 public class AlphaBetaPrune<E extends GameState<E>> {
     private final E startState;
     private final int maxDepth;
-    private final LimitedSizeDict<Node<E>> dict;
+    private final static LimitedSizeDict<Node<?>> dict=new LimitedSizeDict<>(1<<28);
     private AlphaBetaPrune(E startState,int maxDepth) {
         this.startState = startState;
         this.maxDepth=maxDepth;
-        dict=new LimitedSizeDict<>(Integer.MAX_VALUE);
     }
 
     /**
@@ -19,9 +18,9 @@ public class AlphaBetaPrune<E extends GameState<E>> {
     public static <T extends GameState<T>> T search(T state,int maxDepth) {
         final Node<T> n = new AlphaBetaPrune<>(state,maxDepth).abSearch();
 
-        /*
+
         for (Node<T> node = n; node != null; node = node.bestRes)
-            System.out.println(node);*/
+            System.out.println(node);
 
         return n==null||n.bestRes==null?null:n.bestRes.state;
     }
@@ -35,7 +34,7 @@ public class AlphaBetaPrune<E extends GameState<E>> {
         if (curDepth>=maxDepth|| state.stopTreeSearch())
             return new Node<>(state, null, new Utility(state.eval(), curDepth));
         final int effDepth=maxDepth-curDepth;
-        final Node<E> dictRes=dict.queryWithMinDepth(state.id(),effDepth);
+        final Node<E> dictRes= (Node<E>) dict.queryWithMinDepth(state.id(),effDepth);
         if(dictRes!=null)
             return dictRes;
         Utility utility = Utility.MIN;
@@ -63,7 +62,7 @@ public class AlphaBetaPrune<E extends GameState<E>> {
         if (curDepth>=maxDepth|| state.stopTreeSearch())
             return new Node<>(state, null, new Utility(state.eval(), curDepth));
         final int effDepth=maxDepth-curDepth;
-        final Node<E> dictRes=dict.queryWithMinDepth(state.id(),effDepth);
+        final Node<E> dictRes= (Node<E>) dict.queryWithMinDepth(state.id(),effDepth);
         if(dictRes!=null)
             return dictRes;
         Utility utility = Utility.MAX;

@@ -25,7 +25,9 @@ public class Board implements GameState<Board> {
     final int move;
     private static final IntPredicate isValidMove=m->m>=0;
     private final IntFunction<Board> createBoard= m->new Board(this,m);
-
+    /**
+     * TB were generated from 1's pov
+     * */
     private static final int[] tb=new int[1<<18];
     static{
         final Scanner in;
@@ -85,11 +87,11 @@ public class Board implements GameState<Board> {
         if(player<0)
             invBoard();
         //If player is at critical line, forced win in 1.
-        int win=idxOf(this.board[1],player);
+        final int win=idxOf(this.board[1],player);
         if(win>=0){
-            win+=nCol;
+            final int winMoveBase=3*(win+nCol*(player>0?1:nRow-2));
             //move right if on left half, left if on right half
-            winIn1 =win<9?3*win+2:3*win;
+            winIn1 =win<3?winMoveBase+2:winMoveBase;
         }
         else {
             // If player is not at its critical line but opponent is, defend.
@@ -107,8 +109,18 @@ public class Board implements GameState<Board> {
                     if (this.board[2][j] ==player)
                         n |= 1;
                 }
-                tbRes =tb[n];
-
+                int tbRaw=tb[n];
+                if(tbRaw>=0) {
+                    if (player > 0)
+                        tbRes = tbRaw;
+                    else {
+                        final int dest = tbRaw % 3;
+                        tbRaw /= 3;
+                        final int c = tbRaw % nCol;
+                        int r = tbRaw / nCol;
+                        tbRes = ((nRow - 1 - r) * nCol + c) * 3 + dest;
+                    }
+                }
             }
         }
         if(player<0)
@@ -263,6 +275,9 @@ public class Board implements GameState<Board> {
         return endStage!=0||winIn1>=0||tbRes>=0;
     }
 
+    public boolean ends(){
+        return endStage!=0;
+    }
     @Override
     public Stream<Board> nextStates() {
         boolean desperado=false;
