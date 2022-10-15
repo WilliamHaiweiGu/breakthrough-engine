@@ -325,8 +325,7 @@ public class Board implements GameState<Board> {
             return winIn1;
         if(tbRes>=0)
             return tbRes;
-        final Board ans=AlphaBetaPrune.search(this,maxDepth);
-        return ans==null?tbRes:ans.move;
+        return AlphaBetaPrune.search(this,maxDepth,0);
     }
 
     @Override
@@ -339,6 +338,11 @@ public class Board implements GameState<Board> {
             ans.append("\t]\n");
         }
         return ans.append(player).append("'turn\n").toString();
+    }
+
+    @Override
+    public int move(){
+        return move;
     }
 
     //TESTING METHODS

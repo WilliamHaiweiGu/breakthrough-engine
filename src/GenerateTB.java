@@ -21,8 +21,7 @@ public class GenerateTB {
         }, (byte) 1,-1);
         //return AlphaBetaPrune.search(b);
 
-        Board best=AlphaBetaPrune.search(b,5);
-        return best==null?-1:best.move;
+        return AlphaBetaPrune.search(b,5,0);
     }
 
     public static void main(String[] args) {

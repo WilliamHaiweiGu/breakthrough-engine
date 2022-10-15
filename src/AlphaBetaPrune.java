@@ -1,3 +1,4 @@
+import java.util.HashMap;
 import java.util.Iterator;
 
 /**
@@ -6,23 +7,29 @@ import java.util.Iterator;
 public class AlphaBetaPrune<E extends GameState<E>> {
     private final E startState;
     private final int maxDepth;
+    private final int openingDepth;
     private final static LimitedSizeDict<Node<?>> dict=new LimitedSizeDict<>(1<<28);
-    private AlphaBetaPrune(E startState,int maxDepth) {
+    private final HashMap<Long,Integer> openings=new HashMap<>();
+    private AlphaBetaPrune(E startState,int maxDepth,int openingDepth) {
         this.startState = startState;
         this.maxDepth=maxDepth;
+        this.openingDepth=openingDepth;
     }
 
     /**
      * @return state after best move if forced win. null otherwise.
      * */
-    public static <T extends GameState<T>> T search(T state,int maxDepth) {
-        final Node<T> n = new AlphaBetaPrune<>(state,maxDepth).abSearch();
+    public static <T extends GameState<T>> int search(T state,int maxDepth,int openingDepth) {
+        AlphaBetaPrune<T> abt=new AlphaBetaPrune<>(state,maxDepth,openingDepth);
+        final Node<T> n = abt.abSearch();
 
         /*
         for (Node<T> node = n; node != null; node = node.bestRes)
             System.out.println(node);*/
+        TextFile tf=new TextFile("C:\\Users\\willi\\Downloads\\mp\\openings"+maxDepth+".txt");
+        tf.save(abt.openings.toString());
 
-        return n==null||n.bestRes==null?null:n.bestRes.state;
+        return n==null?-1:n.bestMove;
     }
 
     private Node<E> abSearch() {
@@ -32,27 +39,29 @@ public class AlphaBetaPrune<E extends GameState<E>> {
 
     private Node<E> maxSearch(E state, Utility a, Utility b, int curDepth) {
         if (curDepth>=maxDepth|| state.stopTreeSearch())
-            return new Node<>(state, null, new Utility(state.eval(), curDepth));
+            return new Node<>(state, -1, new Utility(state.eval(), curDepth));
         final int effDepth=maxDepth-curDepth;
         final Node<E> dictRes= (Node<E>) dict.queryWithMinDepth(state.id(),effDepth);
         if(dictRes!=null)
             return dictRes;
         Utility utility = Utility.MIN;
-        Node<E> bestMove = null;
+        Node<E> bestRes = null;
         curDepth++;
         final Iterator<E> nextStates = state.nextStates().iterator();
         while (nextStates.hasNext()) {
             final Node<E> next = minSearch(nextStates.next(), a, b, curDepth);
             if (utility.compareTo(next.utility) < 0) {
                 utility = next.utility;
-                bestMove = next;
+                bestRes = next;
                 if (utility.compareTo(a) > 0)
                     a = utility;
             }
-            if (utility.compareTo(b) >= 0)
+            if (curDepth>=openingDepth&&utility.compareTo(b) >= 0)
                 break;
         }
-
+        final int bestMove=bestRes.state.move();
+        if(curDepth<=openingDepth)
+            openings.put(state.id(),bestMove);
         Node<E> ans=new Node<>(state, bestMove, utility);
         dict.put(state.id(), ans,effDepth);
         return ans;
@@ -60,30 +69,29 @@ public class AlphaBetaPrune<E extends GameState<E>> {
 
     private Node<E> minSearch(E state, Utility a, Utility b, int curDepth) {
         if (curDepth>=maxDepth|| state.stopTreeSearch())
-            return new Node<>(state, null, new Utility(state.eval(), curDepth));
+            return new Node<>(state, -1, new Utility(state.eval(), curDepth));
         final int effDepth=maxDepth-curDepth;
         final Node<E> dictRes= (Node<E>) dict.queryWithMinDepth(state.id(),effDepth);
         if(dictRes!=null)
             return dictRes;
         Utility utility = Utility.MAX;
-        Node<E> bestMove = null;
+        Node<E> bestRes = null;
         curDepth++;
         final Iterator<E> nextStates = state.nextStates().iterator();
-        if (!nextStates.hasNext()) { // Player -1 has no pieces in this half of board. Skip.
-            final Node<E> next = maxSearch(state, a, b, curDepth);
-            return new Node<>(state, next, next.utility);
-        }
         while (nextStates.hasNext()) {
             final Node<E> next = maxSearch(nextStates.next(), a, b, curDepth);
             if (utility.compareTo(next.utility) > 0) {
                 utility = next.utility;
-                bestMove = next;
+                bestRes = next;
                 if (utility.compareTo(b) < 0)
                     b = utility;
             }
-            if (utility.compareTo(a) <= 0)
+            if (curDepth>=openingDepth&&utility.compareTo(a) <= 0)
                 break;
         }
+        final int bestMove=bestRes.state.move();
+        if(curDepth<=openingDepth)
+            openings.put(state.id(),bestMove);
         Node<E> ans=new Node<>(state, bestMove, utility);
         dict.put(state.id(), ans,effDepth);
         return ans;
@@ -93,11 +101,11 @@ public class AlphaBetaPrune<E extends GameState<E>> {
     private static class Node<T> {
         private final Utility utility;
         private final T state;
-        private final Node<T> bestRes;
+        private final int bestMove;
 
-        private Node(T state, Node<T> bestRes, Utility utility) {
+        private Node(T state, int bestMove, Utility utility) {
             this.state = state;
-            this.bestRes = bestRes;
+            this.bestMove = bestMove;
             this.utility = utility;
         }
 
