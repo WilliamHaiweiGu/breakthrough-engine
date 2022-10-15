@@ -187,21 +187,16 @@ public class Board implements GameState<Board> {
             return endStage *WINLOSE;
         if(winIn1>=0||tbRes>=0)
             return player*WINLOSE;
-        //Normal evaluation. Step 1: positional value
-        int ans=totalPosValue((byte) 1);
-        invBoard();
-        ans-=totalPosValue((byte) -1);
-        invBoard();
-        //Step 2: material value
+        //Normal evaluation. Step 1: material value
         int cnt=0;
         for(int i=0;i<nRow;i++)
             for(int j=0;j<nCol;j++)
                 cnt+=board[i][j];
-        ans+=Integer.compare(cnt,0)*10;
-        //Step 3: breakthough likelyhood
-        ans+= totalBreakthroughLikelihood((byte) 1);
+        int ans=Integer.compare(cnt,0)*10;
+        //Step 2: positional value. Step 3: breakthough likelyhood
+        ans+=totalPosValue((byte) 1)+totalBreakthroughLikelihood((byte) 1);
         invBoard();
-        ans-= totalBreakthroughLikelihood((byte) -1);
+        ans-=totalPosValue((byte) -1)+totalBreakthroughLikelihood((byte) -1);
         invBoard();
         return ans;
     }
@@ -278,6 +273,7 @@ public class Board implements GameState<Board> {
     public boolean ends(){
         return endStage!=0;
     }
+
     @Override
     public Stream<Board> nextStates() {
         boolean desperado=false;
@@ -325,8 +321,7 @@ public class Board implements GameState<Board> {
             return winIn1;
         if(tbRes>=0)
             return tbRes;
-        final Board ans=AlphaBetaPrune.search(this,maxDepth);
-        return ans==null?tbRes:ans.move;
+        return AlphaBetaPrune.search(this,maxDepth);
     }
 
     @Override
@@ -339,6 +334,11 @@ public class Board implements GameState<Board> {
             ans.append("\t]\n");
         }
         return ans.append(player).append("'turn\n").toString();
+    }
+
+    @Override
+    public int move(){
+        return move;
     }
 
     //TESTING METHODS

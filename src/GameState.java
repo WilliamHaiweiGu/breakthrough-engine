@@ -19,4 +19,7 @@ public interface GameState<E> {
     byte player();
 
     long id();
+
+    /**move that lead to this board*/
+    int move();
 }
