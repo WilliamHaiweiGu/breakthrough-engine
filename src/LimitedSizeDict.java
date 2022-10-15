@@ -15,6 +15,11 @@ public class LimitedSizeDict<V> {
             this.effDepth=effDepth;
             this.id=id;
         }
+
+        @Override
+        public String toString(){
+            return String.valueOf(val);
+        }
     }
     private static <V> void connect(Node<V> left,Node<V> right){
         left.next=right;
@@ -66,5 +71,10 @@ public class LimitedSizeDict<V> {
         connect(n,head.next);
         connect(head,n);
         dict.put(boardID,n);
+    }
+
+    @Override
+    public String toString(){
+        return dict.toString();
     }
 }
