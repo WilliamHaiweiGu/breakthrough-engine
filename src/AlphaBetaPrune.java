@@ -22,7 +22,7 @@ public class AlphaBetaPrune<E extends GameState<E>> {
         for (Node<T> node = n; node != null; node = node.bestRes)
             System.out.println(node);*/
 
-        return n==null?null:n.bestMove;
+        return n==null?-1:n.bestMove;
     }
 
     private Node<E> abSearch() {

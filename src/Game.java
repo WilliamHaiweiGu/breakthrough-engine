@@ -10,7 +10,7 @@ public class Game {
     }
     private static Board AiTurn(Board b){
         final long t = System.currentTimeMillis();
-        int ans = b.findBestMove(7);
+        int ans = b.findBestMove(5);
         System.out.println("Move: " + ans + " - " + (System.currentTimeMillis() - t) / 1000.0 + "s");
         b=new Board(b,ans);
         System.out.println(b);
@@ -20,15 +20,15 @@ public class Game {
 
         Board b=new Board(new byte[][]{
 
-                {-1, -1, -1, -1, -1, -1},
-                {-1, -1, -1, -1, -1, -1},
-                {0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0},
-                {1, 1, 1, 1, 1, 0},
-                {1, 1, 1, 1, 1, 1},
+                {0, 0, -1, -1, -1, -1},
+                {-1,-1, 0,-1, 0, 0},
+                {0, 0, 0, 0,-1, 0},
+                {1, 1,-1, 1, 0, 0},
+                {0, 0, 0, 0, 1, 1},
+                {0, 0, 1, 1, 1, 1},
         }, (byte) 1,-1);
         System.out.println(b);
-        while(!b.ends()) {
+        while(!b.game_over()) {
             b=AiTurn(b);
         }
     }

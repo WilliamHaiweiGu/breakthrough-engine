@@ -24,7 +24,7 @@ public class Board implements GameState<Board> {
      * */
     final int move;
     private static final IntPredicate isValidMove=m->m>=0;
-    private final IntFunction<Board> createBoard= m->new Board(this,m);
+    private final IntFunction<Board> makeMove = m->new Board(this,m);
     /**
      * TB were generated from 1's pov
      * */
@@ -193,7 +193,7 @@ public class Board implements GameState<Board> {
             for(int j=0;j<nCol;j++)
                 cnt+=board[i][j];
         int ans=Integer.compare(cnt,0)*10;
-        //Step 2: positional value. Step 3: breakthough likelyhood
+        //Step 2: positional value. Step 3: breakthrough likelihood
         ans+=totalPosValue((byte) 1)+totalBreakthroughLikelihood((byte) 1);
         invBoard();
         ans-=totalPosValue((byte) -1)+totalBreakthroughLikelihood((byte) -1);
@@ -270,7 +270,7 @@ public class Board implements GameState<Board> {
         return endStage!=0||winIn1>=0||tbRes>=0;
     }
 
-    public boolean ends(){
+    public boolean game_over(){
         return endStage!=0;
     }
 
@@ -279,9 +279,9 @@ public class Board implements GameState<Board> {
         boolean desperado=false;
         //If table base hit, return res
         if(tbRes>=0)
-            return Stream.of(createBoard.apply(tbRes));
+            return Stream.of(makeMove.apply(tbRes));
         if(winIn1>=0)
-            return Stream.of(createBoard.apply(winIn1));
+            return Stream.of(makeMove.apply(winIn1));
         final IntStream candidates;
         //If a player must defend, only consider defending pieces
         if(defense>=0){
@@ -291,7 +291,7 @@ public class Board implements GameState<Board> {
             if(leftGuards||rightGuards)
                 return IntStream.of(
                         leftGuards?(homeRow*nCol+(defense-1))*3+2:-1,rightGuards?(homeRow*nCol+(defense+1))*3:-1)
-                        .filter(isValidMove).mapToObj(createBoard);
+                        .filter(isValidMove).mapToObj(makeMove);
             // Has no pieces at home row. Anymove.
             desperado=true;
             candidates=IntStream.range(0, nRow * nCol);
@@ -308,7 +308,7 @@ public class Board implements GameState<Board> {
             final int leftFront = srcC > 0 && board[nextRow][srcC - 1] != player ? i : -1;
             final int midFront = board[nextRow][srcC] == 0 ? i+1 : -1;
             final int rightFront = srcC < nCol - 1 && board[nextRow][srcC + 1] != player ? i+2 : -1;
-            return IntStream.of(leftFront, midFront, rightFront).filter(isValidMove).mapToObj(createBoard);
+            return IntStream.of(leftFront, midFront, rightFront).filter(isValidMove).mapToObj(makeMove);
         }).flatMap(s->s);
         return desperado?ans.limit(1):ans;
     }
